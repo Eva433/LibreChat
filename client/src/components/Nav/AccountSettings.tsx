@@ -1,5 +1,6 @@
 import { useState, memo, useRef } from 'react';
 import * as Select from '@ariakit/react/select';
+import { useNavigate } from 'react-router-dom';
 import { FileText, LogOut } from 'lucide-react';
 import { LinkIcon, GearIcon, DropdownMenuSeparator, Avatar } from '@librechat/client';
 import { MyFilesModal } from '~/components/Chat/Input/Files/MyFilesModal';
@@ -11,6 +12,7 @@ import Settings from './Settings';
 function AccountSettings() {
   const localize = useLocalize();
   const { user, isAuthenticated, logout } = useAuthContext();
+  const navigate = useNavigate();
   const { data: startupConfig } = useGetStartupConfig();
   const balanceQuery = useGetUserBalance({
     enabled: !!isAuthenticated && startupConfig?.balance?.enabled,
@@ -52,9 +54,22 @@ function AccountSettings() {
         <DropdownMenuSeparator />
         {startupConfig?.balance?.enabled === true && balanceQuery.data != null && (
           <>
-            <div className="text-token-text-secondary ml-3 mr-2 py-2 text-sm" role="note">
-              {localize('com_nav_balance')}:{' '}
-              {new Intl.NumberFormat().format(Math.round(balanceQuery.data.tokenCredits))}
+            <div
+              className="text-token-text-secondary ml-3 mr-2 flex items-center justify-between gap-2 py-2 text-sm"
+              role="note"
+            >
+              <span>
+                {localize('com_nav_balance')}:{' '}
+                {new Intl.NumberFormat().format(Math.round(balanceQuery.data.tokenCredits))}
+              </span>
+              <button
+                type="button"
+                onClick={() => navigate('/recharge')}
+                className="ml-2 rounded-md bg-green-600 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-green-700"
+                title="Add Credits"
+              >
+                + Add Credits
+              </button>
             </div>
             <DropdownMenuSeparator />
           </>
