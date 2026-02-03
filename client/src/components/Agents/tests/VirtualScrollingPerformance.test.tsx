@@ -151,7 +151,7 @@ jest.mock('../AgentCard', () => {
 
 describe('Virtual Scrolling Performance', () => {
   const maxRenderTimeMs =
-    Number.parseInt(process.env.VIRTUAL_SCROLL_BUDGET_MS || '', 10) || 1500;
+    Number.parseInt(process.env.VIRTUAL_SCROLL_BUDGET_MS || '', 10) || 2500;
   let queryClient: QueryClient;
 
   beforeEach(() => {

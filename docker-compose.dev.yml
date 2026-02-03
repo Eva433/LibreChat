@@ -1,0 +1,60 @@
+# Docker Compose for Development
+# 只运行数据库服务，应用代码在本地运行
+
+services:
+  mongodb:
+    container_name: chat-mongodb
+    image: mongo:8.0.17
+    restart: always
+    ports:
+      - "27017:27017"  # 暴露给本地访问
+    volumes:
+      - ./data-node:/data/db
+    command: mongod --noauth
+
+  meilisearch:
+    container_name: chat-meilisearch
+    image: getmeili/meilisearch:v1.12.3
+    restart: always
+    ports:
+      - "7700:7700"  # 暴露给本地访问
+    environment:
+      - MEILI_HOST=http://meilisearch:7700
+      - MEILI_NO_ANALYTICS=true
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY:-your-meilisearch-master-key-here}
+    volumes:
+      - ./meili_data_v1.12:/meili_data
+
+  vectordb:
+    container_name: vectordb
+    image: pgvector/pgvector:0.8.0-pg15-trixie
+    ports:
+      - "5433:5432"  # 使用 5433 避免与本地 PostgreSQL 冲突
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    restart: always
+    volumes:
+      - pgdata2:/var/lib/postgresql/data
+    profiles:
+      - rag  # 标记为可选服务
+
+  rag_api:
+    container_name: rag_api
+    image: ghcr.io/danny-avila/librechat-rag-api-dev-lite:latest
+    ports:
+      - "8000:8000"  # 暴露给本地访问
+    environment:
+      - DB_HOST=vectordb
+      - RAG_PORT=${RAG_PORT:-8000}
+    restart: always
+    depends_on:
+      - vectordb
+    env_file:
+      - .env
+    profiles:
+      - rag  # 标记为可选服务
+
+volumes:
+  pgdata2:
