@@ -630,11 +630,23 @@ export default function mongoMeili(schema: Schema, options: MongoMeiliOptions): 
   });
 
   schema.post('updateOne', function (doc: DocumentWithMeiliIndex, next) {
-    doc.postUpdateHook?.(next);
+    if (!meiliEnabled) {
+      return next();
+    }
+    if (typeof doc?.postUpdateHook === 'function') {
+      return doc.postUpdateHook(next);
+    }
+    return next();
   });
 
   schema.post('deleteOne', function (doc: DocumentWithMeiliIndex, next) {
-    doc.postRemoveHook?.(next);
+    if (!meiliEnabled) {
+      return next();
+    }
+    if (typeof doc?.postRemoveHook === 'function') {
+      return doc.postRemoveHook(next);
+    }
+    return next();
   });
 
   // Pre-deleteMany hook: remove corresponding documents from MeiliSearch when multiple documents are deleted.
