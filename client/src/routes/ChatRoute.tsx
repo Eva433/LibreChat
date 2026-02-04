@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { Spinner } from '@librechat/client';
 import { useParams } from 'react-router-dom';
-import { useRecoilCallback, useRecoilValue } from 'recoil';
+import { useRecoilCallback, useRecoilValue, useSetRecoilState } from 'recoil';
 import { Constants, EModelEndpoint } from 'librechat-data-provider';
 import { useGetModelsQuery } from 'librechat-data-provider/react-query';
-import type { TPreset } from 'librechat-data-provider';
+import type { TPreset, TConversation } from 'librechat-data-provider';
 import { useGetConvoIdQuery, useGetStartupConfig, useGetEndpointsQuery } from '~/data-provider';
 import { useNewConvo, useAppStartup, useAssistantListMap, useIdChangeEffect } from '~/hooks';
 import { getDefaultModelSpec, getModelSpecPreset, logger } from '~/utils';
@@ -31,8 +31,23 @@ export default function ChatRoute() {
   const index = 0;
   const { conversationId = '' } = useParams();
   useIdChangeEffect(conversationId);
-  const { hasSetConversation, conversation } = store.useCreateConversationAtom(index);
+  const { hasSetConversation, conversation, setConversation } = store.useCreateConversationAtom(index);
   const { newConversation } = useNewConvo();
+
+  // Guest mode: Initialize a default conversation for guests to prevent null errors
+  useEffect(() => {
+    if (!isAuthenticated && !conversation) {
+      const guestConversation: TConversation = {
+        conversationId: Constants.NEW_CONVO,
+        title: 'New Chat',
+        endpoint: null,
+        createdAt: '',
+        updatedAt: '',
+      };
+      setConversation(guestConversation);
+      hasSetConversation.current = true;
+    }
+  }, [isAuthenticated, conversation, setConversation, hasSetConversation]);
 
   const modelsQuery = useGetModelsQuery({
     enabled: isAuthenticated,
@@ -130,7 +145,8 @@ export default function ChatRoute() {
     assistantListMap,
   ]);
 
-  if (endpointsQuery.isLoading || modelsQuery.isLoading) {
+  // Only show loading spinner for authenticated users waiting for data
+  if (isAuthenticated && (endpointsQuery.isLoading || modelsQuery.isLoading)) {
     return (
       <div className="flex h-screen items-center justify-center" aria-live="polite" role="status">
         <Spinner className="text-text-primary" />
@@ -138,8 +154,14 @@ export default function ChatRoute() {
     );
   }
 
+  // Guest mode: render a basic chat view without conversation data
+  // Actions will redirect to login via useGuestMode hook
   if (!isAuthenticated) {
-    return null;
+    return (
+      <ToolCallsMapProvider conversationId={Constants.NEW_CONVO}>
+        <ChatView index={index} />
+      </ToolCallsMapProvider>
+    );
   }
 
   // if not a conversation

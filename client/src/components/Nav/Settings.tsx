@@ -40,7 +40,8 @@ export default function Settings({ open, onOpenChange }: TDialogProps) {
       SettingsTabValues.GENERAL,
       SettingsTabValues.CHAT,
       SettingsTabValues.COMMANDS,
-      SettingsTabValues.SPEECH,
+      // Speech settings tab is disabled from keyboard navigation
+      // SettingsTabValues.SPEECH,
       ...(hasAnyPersonalizationFeature ? [SettingsTabValues.PERSONALIZATION] : []),
       SettingsTabValues.DATA,
       ...(startupConfig?.balance?.enabled ? [SettingsTabValues.BALANCE] : []),
@@ -88,11 +89,12 @@ export default function Settings({ open, onOpenChange }: TDialogProps) {
       icon: <Command className="icon-sm" aria-hidden="true" />,
       label: 'com_nav_commands',
     },
-    {
-      value: SettingsTabValues.SPEECH,
-      icon: <SpeechIcon className="icon-sm" aria-hidden="true" />,
-      label: 'com_nav_setting_speech',
-    },
+    // Speech settings tab is disabled
+    // {
+    //   value: SettingsTabValues.SPEECH,
+    //   icon: <SpeechIcon className="icon-sm" aria-hidden="true" />,
+    //   label: 'com_nav_setting_speech',
+    // },
     ...(hasAnyPersonalizationFeature
       ? [
           {
@@ -229,9 +231,10 @@ export default function Settings({ open, onOpenChange }: TDialogProps) {
                     <Tabs.Content value={SettingsTabValues.COMMANDS} tabIndex={-1}>
                       <Commands />
                     </Tabs.Content>
-                    <Tabs.Content value={SettingsTabValues.SPEECH} tabIndex={-1}>
+                    {/* Speech settings tab content is disabled */}
+                    {/* <Tabs.Content value={SettingsTabValues.SPEECH} tabIndex={-1}>
                       <Speech />
-                    </Tabs.Content>
+                    </Tabs.Content> */}
                     {hasAnyPersonalizationFeature && (
                       <Tabs.Content value={SettingsTabValues.PERSONALIZATION} tabIndex={-1}>
                         <Personalization

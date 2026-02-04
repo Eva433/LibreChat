@@ -1,4 +1,5 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
+import { request } from 'librechat-data-provider';
 import type {
   PricingResponse,
   CreateCheckoutSessionResponse,
@@ -20,13 +21,7 @@ export const usePricingQuery = () => {
   return useQuery<PricingResponse>({
     queryKey: RechargeKeys.pricing(),
     queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/pricing`, {
-        credentials: 'include',
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch pricing');
-      }
-      return response.json();
+      return request.get<PricingResponse>(`${BASE_URL}/pricing`);
     },
   });
 };
@@ -34,19 +29,7 @@ export const usePricingQuery = () => {
 export const useCreateCheckoutSession = () => {
   return useMutation<CreateCheckoutSessionResponse, Error, { tierId: string }>({
     mutationFn: async ({ tierId }) => {
-      const response = await fetch(`${BASE_URL}/create-checkout-session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ tierId }),
-      });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to create checkout session');
-      }
-      return response.json();
+      return request.post(`${BASE_URL}/create-checkout-session`, { tierId });
     },
   });
 };
@@ -55,13 +38,9 @@ export const useRechargeHistoryQuery = (limit = 10) => {
   return useQuery<{ history: RechargeHistory[] }>({
     queryKey: [...RechargeKeys.history(), limit],
     queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/history?limit=${limit}`, {
-        credentials: 'include',
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch recharge history');
-      }
-      return response.json();
+      return request.get<{ history: RechargeHistory[] }>(
+        `${BASE_URL}/history?limit=${limit}`,
+      );
     },
   });
 };
@@ -73,13 +52,9 @@ export const useVerifySessionQuery = (sessionId: string | null) => {
       if (!sessionId) {
         throw new Error('No session ID provided');
       }
-      const response = await fetch(`${BASE_URL}/verify-session/${sessionId}`, {
-        credentials: 'include',
-      });
-      if (!response.ok) {
-        throw new Error('Failed to verify session');
-      }
-      return response.json();
+      return request.get<VerifySessionResponse>(
+        `${BASE_URL}/verify-session/${sessionId}`,
+      );
     },
     enabled: !!sessionId,
   });

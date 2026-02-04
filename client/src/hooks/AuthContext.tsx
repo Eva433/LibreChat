@@ -38,6 +38,7 @@ const AuthContextProvider = ({
   const [error, setError] = useState<string | undefined>(undefined);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const logoutRedirectRef = useRef<string | undefined>(undefined);
+  const hasAttemptedRefresh = useRef<boolean>(false);
 
   const { data: userRole = null } = useGetRole(SystemRoles.USER, {
     enabled: !!(isAuthenticated && (user?.role ?? '')),
@@ -136,25 +137,25 @@ const AuthContextProvider = ({
       console.log('Test mode. Skipping silent refresh.');
       return;
     }
+    // Prevent repeated refresh attempts for guest mode
+    if (hasAttemptedRefresh.current) {
+      return;
+    }
+    hasAttemptedRefresh.current = true;
+
     refreshToken.mutate(undefined, {
       onSuccess: (data: t.TRefreshTokenResponse | undefined) => {
         const { user, token = '' } = data ?? {};
         if (token) {
           setUserContext({ token, isAuthenticated: true, user });
         } else {
-          console.log('Token is not present. User is not authenticated.');
-          if (authConfig?.test === true) {
-            return;
-          }
-          navigate('/login');
+          console.log('Token is not present. User is not authenticated (guest mode).');
+          // Guest mode: Do not redirect to login, allow viewing UI
         }
       },
       onError: (error) => {
-        console.log('refreshToken mutation error:', error);
-        if (authConfig?.test === true) {
-          return;
-        }
-        navigate('/login');
+        console.log('refreshToken mutation error (guest mode):', error);
+        // Guest mode: Do not redirect to login on refresh failure
       },
     });
   }, []);
@@ -163,8 +164,8 @@ const AuthContextProvider = ({
     if (userQuery.data) {
       setUser(userQuery.data);
     } else if (userQuery.isError) {
-      doSetError((userQuery.error as Error).message);
-      navigate('/login', { replace: true });
+      // Guest mode: Log error but don't redirect to login
+      console.log('User query error (guest mode):', (userQuery.error as Error).message);
     }
     if (error != null && error && isAuthenticated) {
       doSetError(undefined);

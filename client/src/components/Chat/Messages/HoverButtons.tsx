@@ -186,24 +186,7 @@ const HoverButtons = ({
 
   return (
     <div className="group visible flex justify-center gap-0.5 self-end focus-within:outline-none lg:justify-start">
-      {/* Text to Speech */}
-      {TextToSpeech && (
-        <MessageAudio
-          index={index}
-          isLast={isLast}
-          messageId={message.messageId}
-          content={extractMessageContent(message)}
-          renderButton={(props) => (
-            <HoverButton
-              onClick={props.onClick}
-              title={props.title}
-              icon={props.icon}
-              isActive={props.isActive}
-              isLast={isLast}
-            />
-          )}
-        />
-      )}
+      {/* Text to Speech UI is disabled */}
 
       {/* Copy Button */}
       <HoverButton

@@ -59,6 +59,9 @@ bower_components/
 .clineignore
 .cursor
 .aider*
+.cache/
+.devcontainer/
+
 
 # Floobits
 .floo
@@ -169,3 +172,5 @@ coordination/orchestration/*
 claude-flow
 # Removed Windows wrapper files per user request
 hive-mind-prompt-*.txt
+.deploy/last_image.txt
+server-Cloudflare-sert.md

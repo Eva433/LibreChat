@@ -1,46 +1,196 @@
 #!/bin/bash
 
 # LibreChat 本地开发环境启动脚本
+# 自动清理端口并启动热更新服务
 
-echo "🚀 启动 LibreChat 本地开发环境"
+# 颜色定义
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# 端口配置
+API_PORT=3080
+FRONTEND_PORT=3090
+
+echo -e "${BLUE}🚀 启动 LibreChat 本地开发环境${NC}"
 echo "================================"
 
-# 检查数据库服务
-echo "📦 检查数据库服务..."
-if ! docker ps | grep -q chat-mongodb; then
-    echo "启动数据库服务..."
-    docker compose -f docker-compose.dev.yml up -d
-    echo "等待数据库启动..."
+# 函数：终止指定端口的进程
+kill_port() {
+    local port=$1
+    local service_name=$2
+
+    # 查找占用端口的进程
+    local pid=$(lsof -ti:$port 2>/dev/null)
+
+    if [ -n "$pid" ]; then
+        echo -e "${YELLOW}⚠️  发现端口 $port 被占用 (PID: $pid)${NC}"
+        echo -e "${YELLOW}正在终止 $service_name...${NC}"
+
+        # 尝试优雅终止
+        kill $pid 2>/dev/null
+
+        # 等待最多 5 秒
+        for i in {1..5}; do
+            if ! lsof -ti:$port &>/dev/null; then
+                echo -e "${GREEN}✓ $service_name 已停止${NC}"
+                return 0
+            fi
+            sleep 1
+        done
+
+        # 如果优雅终止失败，强制终止
+        if lsof -ti:$port &>/dev/null; then
+            echo -e "${YELLOW}强制终止 $service_name...${NC}"
+            kill -9 $pid 2>/dev/null
+            sleep 1
+        fi
+
+        if ! lsof -ti:$port &>/dev/null; then
+            echo -e "${GREEN}✓ $service_name 已强制停止${NC}"
+        else
+            echo -e "${RED}✗ 无法终止端口 $port 上的进程${NC}"
+            return 1
+        fi
+    else
+        echo -e "${GREEN}✓ 端口 $port 空闲${NC}"
+    fi
+
+    return 0
+}
+
+# 函数：启动数据库服务
+start_database() {
+    echo ""
+    echo -e "${BLUE}📦 检查数据库服务...${NC}"
+
+    if ! docker ps | grep -q chat-mongodb; then
+        echo "启动数据库服务..."
+        docker compose -f docker-compose.dev.yml up -d
+        echo "等待数据库启动..."
+        sleep 5
+
+        if docker ps | grep -q chat-mongodb; then
+            echo -e "${GREEN}✓ 数据库服务已启动${NC}"
+        else
+            echo -e "${RED}✗ 数据库启动失败${NC}"
+            return 1
+        fi
+    else
+        echo -e "${GREEN}✓ 数据库服务已运行${NC}"
+    fi
+
+    return 0
+}
+
+# 函数：检查并安装依赖
+check_dependencies() {
+    echo ""
+    echo -e "${BLUE}📥 检查依赖...${NC}"
+
+    if [ ! -d "node_modules" ]; then
+        echo "安装 npm 依赖..."
+        npm install
+        if [ $? -eq 0 ]; then
+            echo -e "${GREEN}✓ 依赖安装完成${NC}"
+        else
+            echo -e "${RED}✗ 依赖安装失败${NC}"
+            return 1
+        fi
+    else
+        echo -e "${GREEN}✓ 依赖已安装${NC}"
+    fi
+
+    return 0
+}
+
+# 主流程
+main() {
+    # 1. 清理端口
+    echo ""
+    echo -e "${BLUE}🧹 清理端口...${NC}"
+    kill_port $API_PORT "后端 API 服务"
+    kill_port $FRONTEND_PORT "前端服务"
+
+    # 等待端口释放
+    sleep 2
+
+    # 2. 启动数据库
+    start_database
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}数据库启动失败，退出${NC}"
+        exit 1
+    fi
+
+    # 3. 检查依赖
+    check_dependencies
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}依赖检查失败，退出${NC}"
+        exit 1
+    fi
+
+    # 4. 构建共享包（如果需要）
+    echo ""
+    echo -e "${BLUE}🔨 检查共享包...${NC}"
+    if [ ! -d "packages-built" ] || [ ! -d "api-built" ]; then
+        echo "构建共享包..."
+        npm run build:packages
+        if [ $? -eq 0 ]; then
+            echo -e "${GREEN}✓ 共享包构建完成${NC}"
+        else
+            echo -e "${RED}✗ 共享包构建失败${NC}"
+            exit 1
+        fi
+    else
+        echo -e "${GREEN}✓ 共享包已构建${NC}"
+    fi
+
+    # 5. 启动服务
+    echo ""
+    echo -e "${BLUE}🚀 启动开发服务器...${NC}"
+    echo ""
+
+    # 使用 trap 确保脚本退出时清理后台进程
+    trap 'echo ""; echo -e "${YELLOW}正在停止所有服务...${NC}"; kill $(jobs -p) 2>/dev/null; echo -e "${GREEN}所有服务已停止${NC}"; exit 0' INT TERM
+
+    # 启动后端（后台）
+    echo -e "${BLUE}启动后端 API (端口 $API_PORT)...${NC}"
+    npm run backend:dev &
+    BACKEND_PID=$!
+
+    # 等待后端启动
     sleep 3
-else
-    echo "✓ 数据库服务已运行"
-fi
 
-# 检查依赖
-if [ ! -d "node_modules" ]; then
-    echo "📥 安装依赖..."
-    npm install
-fi
+    # 启动前端（后台）
+    echo -e "${BLUE}启动前端 (端口 $FRONTEND_PORT)...${NC}"
+    npm run frontend:dev &
+    FRONTEND_PID=$!
 
-echo ""
-echo "================================"
-echo "✅ 准备完成！"
-echo ""
-echo "现在可以运行以下命令启动开发服务器："
-echo ""
-echo "  # 启动后端 API (端口 3080)"
-echo "  npm run backend:dev"
-echo ""
-echo "  # 启动前端 (端口 3090, 新开一个终端)"
-echo "  npm run frontend:dev"
-echo ""
-echo "  # 或者分屏同时运行两个命令"
-echo ""
-echo "访问地址："
-echo "  前端: http://localhost:3090"
-echo "  API:  http://localhost:3080"
-echo ""
-echo "数据库服务："
-echo "  MongoDB:     localhost:27017"
-echo "  Meilisearch: localhost:7700"
-echo ""
+    # 6. 显示启动信息
+    echo ""
+    echo -e "${GREEN}================================${NC}"
+    echo -e "${GREEN}✅ 所有服务已启动！${NC}"
+    echo ""
+    echo -e "${BLUE}后端 PID: $BACKEND_PID${NC}"
+    echo -e "${BLUE}前端 PID: $FRONTEND_PID${NC}"
+    echo ""
+    echo -e "${YELLOW}访问地址：${NC}"
+    echo -e "  前端: ${GREEN}http://localhost:$FRONTEND_PORT${NC}"
+    echo -e "  API:  ${GREEN}http://localhost:$API_PORT${NC}"
+    echo ""
+    echo -e "${YELLOW}数据库服务：${NC}"
+    echo -e "  MongoDB:     ${GREEN}localhost:27017${NC}"
+    echo -e "  Meilisearch: ${GREEN}localhost:7700${NC}"
+    echo ""
+    echo -e "${YELLOW}按 Ctrl+C 停止所有服务${NC}"
+    echo -e "${GREEN}================================${NC}"
+    echo ""
+
+    # 等待任一后台进程退出
+    wait -n
+}
+
+# 运行主流程
+main

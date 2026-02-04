@@ -58,19 +58,9 @@ export default function Presentation({ children }: { children: React.ReactNode }
   const fullCollapse = useMemo(() => localStorage.getItem('fullPanelCollapse') === 'true', []);
 
   /**
-   * Memoize artifacts JSX to prevent recreating it on every render
-   * This is critical for performance - prevents entire artifact tree from re-rendering
+   * Artifacts UI is disabled
    */
   const artifactsElement = useMemo(() => {
-    if (artifactsVisibility === true && Object.keys(artifacts ?? {}).length > 0) {
-      return (
-        <ArtifactsProvider>
-          <EditorProvider>
-            <Artifacts />
-          </EditorProvider>
-        </ArtifactsProvider>
-      );
-    }
     return null;
   }, [artifactsVisibility, artifacts]);
 

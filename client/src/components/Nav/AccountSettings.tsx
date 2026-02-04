@@ -1,17 +1,18 @@
 import { useState, memo, useRef } from 'react';
 import * as Select from '@ariakit/react/select';
 import { useNavigate } from 'react-router-dom';
-import { FileText, LogOut } from 'lucide-react';
-import { LinkIcon, GearIcon, DropdownMenuSeparator, Avatar } from '@librechat/client';
+import { FileText, LogOut, LogIn } from 'lucide-react';
+import { GearIcon, DropdownMenuSeparator, Avatar } from '@librechat/client';
 import { MyFilesModal } from '~/components/Chat/Input/Files/MyFilesModal';
 import { useGetStartupConfig, useGetUserBalance } from '~/data-provider';
 import { useAuthContext } from '~/hooks/AuthContext';
-import { useLocalize } from '~/hooks';
+import { useLocalize, useGuestMode } from '~/hooks';
 import Settings from './Settings';
 
 function AccountSettings() {
   const localize = useLocalize();
   const { user, isAuthenticated, logout } = useAuthContext();
+  const { isGuest } = useGuestMode();
   const navigate = useNavigate();
   const { data: startupConfig } = useGetStartupConfig();
   const balanceQuery = useGetUserBalance({
@@ -20,6 +21,28 @@ function AccountSettings() {
   const [showSettings, setShowSettings] = useState(false);
   const [showFiles, setShowFiles] = useState(false);
   const accountSettingsButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Guest mode: Show login button instead of account settings
+  if (isGuest) {
+    return (
+      <button
+        type="button"
+        onClick={() => navigate('/login')}
+        className="mt-text-sm flex h-auto w-full items-center gap-2 rounded-xl p-2 text-sm transition-all duration-200 ease-in-out hover:bg-surface-active-alt"
+        aria-label={localize('com_nav_log_in')}
+      >
+        <div className="-ml-0.9 -mt-0.8 h-8 w-8 flex-shrink-0 flex items-center justify-center">
+          <LogIn className="icon-md text-text-primary" aria-hidden="true" />
+        </div>
+        <div
+          className="mt-2 grow overflow-hidden text-ellipsis whitespace-nowrap text-left text-text-primary"
+          style={{ marginTop: '0', marginLeft: '0' }}
+        >
+          {localize('com_nav_log_in')}
+        </div>
+      </button>
+    );
+  }
 
   return (
     <Select.SelectProvider>
@@ -62,18 +85,21 @@ function AccountSettings() {
                 {localize('com_nav_balance')}:{' '}
                 {new Intl.NumberFormat().format(Math.round(balanceQuery.data.tokenCredits))}
               </span>
-              <button
-                type="button"
-                onClick={() => navigate('/recharge')}
-                className="ml-2 rounded-md bg-green-600 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-green-700"
-                title="Add Credits"
-              >
-                + Add Credits
-              </button>
             </div>
             <DropdownMenuSeparator />
           </>
         )}
+        <div className="ml-3 mr-2 flex items-center justify-end gap-2 py-2 text-sm">
+          <button
+            type="button"
+            onClick={() => navigate('/recharge')}
+            className="rounded-md bg-green-600 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-green-700"
+            title="Add Credits"
+          >
+            + Add Credits
+          </button>
+        </div>
+        <DropdownMenuSeparator />
         <Select.SelectItem
           value=""
           onClick={() => setShowFiles(true)}
@@ -82,16 +108,6 @@ function AccountSettings() {
           <FileText className="icon-md" aria-hidden="true" />
           {localize('com_nav_my_files')}
         </Select.SelectItem>
-        {startupConfig?.helpAndFaqURL !== '/' && (
-          <Select.SelectItem
-            value=""
-            onClick={() => window.open(startupConfig?.helpAndFaqURL, '_blank')}
-            className="select-item text-sm"
-          >
-            <LinkIcon aria-hidden="true" />
-            {localize('com_nav_help_faq')}
-          </Select.SelectItem>
-        )}
         <Select.SelectItem
           value=""
           onClick={() => setShowSettings(true)}

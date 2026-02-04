@@ -62,9 +62,8 @@ export default function Root() {
     logout('/login?redirect=false');
   };
 
-  if (!isAuthenticated) {
-    return null;
-  }
+  // Guest mode: render UI for both authenticated and unauthenticated users
+  // Actions will redirect to login via useGuestMode hook in individual components
 
   return (
     <SetConvoProvider>

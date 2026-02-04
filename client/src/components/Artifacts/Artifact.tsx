@@ -124,5 +124,6 @@ export function Artifact({
     updateArtifact();
   }, [updateArtifact, resetCounter]);
 
-  return <ArtifactButton artifact={artifact} />;
+  // Artifacts UI is disabled
+  return null;
 }

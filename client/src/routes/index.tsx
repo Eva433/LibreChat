@@ -7,6 +7,7 @@ import {
   ApiErrorWatcher,
   TwoFactorScreen,
   RequestPasswordReset,
+  GuestRouteGuard,
 } from '~/components/Auth';
 import { MarketplaceProvider } from '~/components/Agents/MarketplaceContext';
 import AgentMarketplace from '~/components/Agents/Marketplace';
@@ -27,7 +28,7 @@ import Root from './Root';
 
 const AuthLayout = () => (
   <AuthContextProvider>
-    <Outlet />
+    <GuestRouteGuard />
     <ApiErrorWatcher />
   </AuthContextProvider>
 );

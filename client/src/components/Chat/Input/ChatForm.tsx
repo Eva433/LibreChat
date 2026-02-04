@@ -331,15 +331,7 @@ const ChatForm = memo(({ index = 0 }: { index?: number }) => {
                 }
               />
               <div className="mx-auto flex" />
-              {SpeechToText && (
-                <AudioRecorder
-                  methods={methods}
-                  ask={submitMessage}
-                  textAreaRef={textAreaRef}
-                  disabled={disableInputs || isNotAppendable}
-                  isSubmitting={isSubmitting}
-                />
-              )}
+              {/* Voice recording UI is disabled */}
               <div className={`${isRTL ? 'ml-2' : 'mr-2'}`}>
                 {isSubmitting && showStopButton ? (
                   <StopButton stop={handleStopGenerating} setShowStopButton={setShowStopButton} />
@@ -354,7 +346,7 @@ const ChatForm = memo(({ index = 0 }: { index?: number }) => {
                 )}
               </div>
             </div>
-            {TextToSpeech && automaticPlayback && <StreamAudio index={index} />}
+            {/* StreamAudio UI is disabled */}
           </div>
         </div>
       </div>

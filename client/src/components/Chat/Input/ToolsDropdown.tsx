@@ -274,22 +274,23 @@ const ToolsDropdown = ({ disabled }: ToolsDropdownProps) => {
     });
   }
 
-  if (artifactsEnabled) {
-    dropdownItems.push({
-      hideOnClick: false,
-      render: (props) => (
-        <ArtifactsSubMenu
-          {...props}
-          isArtifactsPinned={isArtifactsPinned}
-          setIsArtifactsPinned={setIsArtifactsPinned}
-          artifactsMode={artifacts.toggleState as string}
-          handleArtifactsToggle={handleArtifactsToggle}
-          handleShadcnToggle={handleShadcnToggle}
-          handleCustomToggle={handleCustomToggle}
-        />
-      ),
-    });
-  }
+  // Artifacts submenu is disabled
+  // if (artifactsEnabled) {
+  //   dropdownItems.push({
+  //     hideOnClick: false,
+  //     render: (props) => (
+  //       <ArtifactsSubMenu
+  //         {...props}
+  //         isArtifactsPinned={isArtifactsPinned}
+  //         setIsArtifactsPinned={setIsArtifactsPinned}
+  //         artifactsMode={artifacts.toggleState as string}
+  //         handleArtifactsToggle={handleArtifactsToggle}
+  //         handleShadcnToggle={handleShadcnToggle}
+  //         handleCustomToggle={handleCustomToggle}
+  //       />
+  //     ),
+  //   });
+  // }
 
   const { availableMCPServers } = mcpServerManager;
   if (canUseMcp && availableMCPServers && availableMCPServers.length > 0) {
