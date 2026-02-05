@@ -23,6 +23,7 @@ import {
 import { TAuthConfig, TUserContext, TAuthContext, TResError } from '~/common';
 import useTimeout from './useTimeout';
 import store from '~/store';
+import { isDemoMode } from '~/utils/demoMode';
 
 const AuthContext = createContext<TAuthContext | undefined>(undefined);
 
@@ -135,6 +136,9 @@ const AuthContextProvider = ({
   const silentRefresh = useCallback(() => {
     if (authConfig?.test === true) {
       console.log('Test mode. Skipping silent refresh.');
+      return;
+    }
+    if (isDemoMode()) {
       return;
     }
     // Prevent repeated refresh attempts for guest mode
