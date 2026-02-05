@@ -400,4 +400,25 @@ describe('loadConfigModels', () => {
       }),
     );
   });
+
+  it('handles missing user for guest requests', async () => {
+    const guestRequest = {};
+    const customEndpoints = [
+      {
+        baseURL: '${BASE_URL}',
+        apiKey: '${API_KEY}',
+        name: 'CustomModel',
+        models: { fetch: true },
+      },
+    ];
+
+    process.env.BASE_URL = 'http://example.com';
+    process.env.API_KEY = 'some-api-key';
+    getAppConfig.mockResolvedValue({ endpoints: { custom: customEndpoints } });
+    fetchModels.mockResolvedValue(['customModel1']);
+
+    const result = await loadConfigModels(guestRequest);
+    expect(result.CustomModel).toEqual(['customModel1']);
+    expect(fetchModels).toHaveBeenCalled();
+  });
 });

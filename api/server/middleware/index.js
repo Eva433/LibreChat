@@ -7,6 +7,7 @@ const requireLocalAuth = require('./requireLocalAuth');
 const canDeleteAccount = require('./canDeleteAccount');
 const accessResources = require('./accessResources');
 const requireLdapAuth = require('./requireLdapAuth');
+const optionalJwtAuth = require('./optionalJwtAuth');
 const abortMiddleware = require('./abortMiddleware');
 const checkInviteUser = require('./checkInviteUser');
 const requireJwtAuth = require('./requireJwtAuth');
@@ -35,6 +36,7 @@ module.exports = {
   logHeaders,
   moderateText,
   validateModel,
+  optionalJwtAuth,
   requireJwtAuth,
   checkInviteUser,
   requireLdapAuth,

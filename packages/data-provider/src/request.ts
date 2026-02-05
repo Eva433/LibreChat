@@ -72,6 +72,28 @@ const dispatchTokenUpdatedEvent = (token: string) => {
   window.dispatchEvent(new CustomEvent('tokenUpdated', { detail: token }));
 };
 
+const getNormalizedPathname = (): string => {
+  if (typeof window === 'undefined') {
+    return '';
+  }
+  let pathname = window.location?.pathname ?? '/';
+  const baseEl =
+    typeof document !== 'undefined' ? (document.querySelector('base') as HTMLBaseElement | null) : null;
+  const baseHref = baseEl?.getAttribute('href') || '/';
+
+  if (baseHref !== '/' && pathname.startsWith(baseHref)) {
+    const stripped = pathname.slice(baseHref.length);
+    pathname = stripped.startsWith('/') ? stripped : `/${stripped}`;
+  }
+
+  return pathname || '/';
+};
+
+const isGuestAllowedPath = (): boolean => {
+  const pathname = getNormalizedPathname();
+  return pathname === '/' || pathname === '/c' || pathname.startsWith('/c/');
+};
+
 const processQueue = (error: AxiosError | null, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
@@ -134,6 +156,8 @@ if (typeof window !== 'undefined') {
             console.log(
               `Refresh token failed from shared link, attempting request to ${originalRequest.url}`,
             );
+          } else if (isGuestAllowedPath()) {
+            console.log('Guest mode: suppressing login redirect on 401.');
           } else {
             window.location.href = endpoints.loginPage();
           }
