@@ -8,6 +8,7 @@ import { Constants, initialModelsConfig } from '../config';
 import { defaultOrderQuery } from '../types/assistants';
 import { MCPServerConnectionStatusResponse } from '../types/queries';
 import * as dataService from '../data-service';
+import { isDemoMode } from '../demo';
 import * as m from '../types/mutations';
 import * as q from '../types/queries';
 import { QueryKeys } from '../keys';
@@ -183,14 +184,18 @@ export const useRevokeAllUserKeysMutation = (): UseMutationResult<unknown> => {
 export const useGetModelsQuery = (
   config?: UseQueryOptions<t.TModelsConfig>,
 ): QueryObserverResult<t.TModelsConfig> => {
-  return useQuery<t.TModelsConfig>([QueryKeys.models], () => dataService.getModels(), {
-    initialData: initialModelsConfig,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    refetchOnMount: false,
-    staleTime: Infinity,
-    ...config,
-  });
+  return useQuery<t.TModelsConfig>(
+    [QueryKeys.models],
+    () => (isDemoMode() ? Promise.resolve(initialModelsConfig) : dataService.getModels()),
+    {
+      initialData: initialModelsConfig,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      refetchOnMount: false,
+      staleTime: Infinity,
+      ...config,
+    },
+  );
 };
 
 export const useCreatePresetMutation = (): UseMutationResult<
