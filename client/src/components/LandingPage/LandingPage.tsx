@@ -347,7 +347,7 @@ const LandingPage: React.FC = () => {
           <p className="text-gray-500 text-lg md:text-xl max-w-2xl mx-auto mb-12 font-medium">{t.hero.subtitle}</p>
           <ChatPreview message={t.hero.aiMessage} lang={lang} />
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
-            <button onClick={() => navigate('/c/new')} className="w-full sm:w-auto px-8 py-4 bg-[#10a37f] text-white rounded-xl font-bold text-lg hover:bg-[#0d8a6a] transition-all shadow-lg hover:shadow-[#10a37f]/30 flex items-center justify-center space-x-2 active:scale-95">
+            <button onClick={() => navigate('/login')} className="w-full sm:w-auto px-8 py-4 bg-[#10a37f] text-white rounded-xl font-bold text-lg hover:bg-[#0d8a6a] transition-all shadow-lg hover:shadow-[#10a37f]/30 flex items-center justify-center space-x-2 active:scale-95">
               <span>{t.hero.chatBtn}</span><ChevronRight size={20} />
             </button>
             <button onClick={() => navigate('/login')} className="w-full sm:w-auto px-8 py-4 bg-white text-gray-700 border border-gray-200 rounded-xl font-bold text-lg hover:bg-gray-50 transition-all flex items-center justify-center space-x-2 active:scale-95">
