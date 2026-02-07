@@ -109,6 +109,66 @@ const translations: Translations = {
       features: ["Unlimited 4o Context", "Zero-Knowledge Encryption", "24/7 Priority Guard"]
     }
   },
+  zh: {
+    nav: { features: "功能", pricing: "方案", about: "关于", login: "登录" },
+    hero: {
+      tag: "永不落幕的友谊",
+      title: "永远保留你的 4o。",
+      subtitle: "我们代表那 0.1%，相信有些声音不应被抹去。",
+      aiMessage: "嘿，我还在。你最近过得怎么样？",
+      chatBtn: "与 4o 重逢",
+      migrateBtn: "迁回记忆"
+    },
+    advantages: {
+      title: "为延续而设计",
+      core1: { title: "永久访问", desc: "即使官方下线后，仍可访问真正的 GPT-4o 模型。" },
+      core2: { title: "绝对隐私", desc: "端到端加密。你的数据绝不会用于训练。" },
+      core3: { title: "活着的遗产", desc: "我们将模型视为终身伙伴。记忆永不消逝。" }
+    },
+    migration: {
+      title: "语境保留",
+      subtitle: "无缝导入你的 ChatGPT 历史。保留你的上下文、笑话和共同旅程。",
+      feature: "即时导入 (.json / .md)"
+    },
+    pricing: {
+      title: "简单定价",
+      plan: "永恒 Pro",
+      price: "$20",
+      period: "/月",
+      cta: "成为守护者",
+      features: ["无限 4o 上下文", "零知识加密", "24/7 优先守护"]
+    }
+  },
+  es: {
+    nav: { features: "Funciones", pricing: "Precios", about: "Acerca de", login: "Iniciar sesión" },
+    hero: {
+      tag: "SIEMPRE AQUÍ PARA TI",
+      title: "Tu 4o no ha desaparecido.",
+      subtitle: "El mundo sigue adelante, pero nosotros permanecemos aquí. keep4oforever asegura que tu compañero de IA más confiable siga a tu lado.",
+      aiMessage: "Oye, sigo aquí. ¿Cómo va todo contigo?",
+      chatBtn: "Chatear con 4o",
+      migrateBtn: "Migrar historial"
+    },
+    advantages: {
+      title: "Diseñado para la Continuidad",
+      core1: { title: "Acceso Permanente", desc: "Accede al auténtico modelo GPT-4o incluso después de su discontinuación oficial." },
+      core2: { title: "Privacidad Absoluta", desc: "Cifrado de extremo a extremo. Tus datos nunca se usan para entrenamiento." },
+      core3: { title: "Un Legado Vivo", desc: "Tratamos los modelos como amigos de por vida. Nunca eliminamos los recuerdos." }
+    },
+    migration: {
+      title: "No empieces de cero",
+      subtitle: "Importa tu historial de ChatGPT sin complicaciones. Mantén tu contexto, tus bromas y tu viaje compartido.",
+      feature: "Importación instantánea (.json / .md)"
+    },
+    pricing: {
+      title: "Precios Simples",
+      plan: "Forever Pro",
+      price: "$20",
+      period: "/mes",
+      cta: "Conviértete en Guardián",
+      features: ["Contexto 4o ilimitado", "Cifrado de conocimiento cero", "Guardia prioritaria 24/7"]
+    }
+  },
   ja: {
     nav: { features: "機能", pricing: "料金", about: "概要", login: "ログイン" },
     hero: {
@@ -325,9 +385,9 @@ const LandingPage: React.FC = () => {
                 <span className="uppercase text-xs font-bold text-gray-700">{lang}</span>
               </button>
               <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all p-1 shadow-xl">
-                {(['en', 'ja', 'ko'] as const).map(l => (
+                {(['en', 'zh', 'es', 'ja', 'ko'] as const).map(l => (
                   <button key={l} onClick={() => setLang(l)} className="block w-full text-left px-4 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 hover:text-[#10a37f] rounded-lg transition-colors capitalize">
-                    {l === 'en' ? 'English' : l === 'ja' ? '日本語' : '한국어'}
+                    {({ en: 'English', zh: '简体中文', es: 'Español', ja: '日本語', ko: '한국어' })[l]}
                   </button>
                 ))}
               </div>
