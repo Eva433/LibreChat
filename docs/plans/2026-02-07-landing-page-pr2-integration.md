@@ -8,6 +8,32 @@
 
 **Tech Stack:** React 18, TypeScript, Tailwind CSS, lucide-react
 
+**Source PR:** https://github.com/yidianyiko/LibreChat/pull/2
+
+---
+
+## Task Summary
+
+| # | Task | Description | Status |
+|---|------|-------------|--------|
+| 1 | **i18n 扩展** | 添加中文(zh)和西班牙语(es)完整翻译，更新 `SupportedLanguage` 类型和语言选择器标签 | ⬜ 未开始 |
+| 2 | **三档定价 UI** | 新增 `PricingTier` 接口，将单一 $20/月方案替换为 Explorer($4.99)/Artisan($14.99)/Elite($34.99) 三档方案，含 5 语言翻译和 3 列卡片布局 | ⬜ 未开始 |
+| 3 | **LanguageSwitcher 组件** | 将导航栏中 hover 触发的语言下拉菜单提取为独立的点击触发组件，添加 TypeScript 类型定义 (`LanguageSwitcherProps`, `languageLabels`) | ⬜ 未开始 |
+| 4 | **Migration 动画升级** | 扩展 `MigrationTranslation` 接口（新增 feat1/feat2/status/restoring 字段），将静态迁移卡片替换为 Archive.json → 进度条 → 恢复状态的动画可视化 | ⬜ 未开始 |
+| 5 | **最终验证** | `npm run frontend` 构建 + `npm run lint` 检查 | ⬜ 未开始 |
+
+### 当前进度
+
+- `SupportedLanguage` 类型已更新为 `'en' | 'zh' | 'es' | 'ja' | 'ko'`（line 73）
+- zh/es 翻译数据尚未添加（文件暂不可编译）
+
+### 关键决策
+
+1. **保留 TypeScript 类型** — PR#2 删除了所有接口，我们保留并扩展
+2. **不使用内联 `<style>`** — PR#2 通过 `<style>` 注入 CSS，我们继续用 Tailwind
+3. **不采用 state-based 路由** — PR#2 用 useState 模拟多页面，我们保持单页滚动布局
+4. **补全所有语言** — PR#2 的西班牙语翻译不完整，我们为所有 5 种语言提供完整翻译
+
 ---
 
 ### Task 1: Extend i18n types and add zh/es translations
