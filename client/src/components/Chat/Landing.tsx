@@ -65,8 +65,10 @@ export default function Landing({ centerFormOnLanding }: { centerFormOnLanding: 
   const description = (entity?.description || conversation?.greeting) ?? '';
 
   const getGreeting = useCallback(() => {
-    if (typeof startupConfig?.interface?.customWelcome === 'string') {
-      const customWelcome = startupConfig.interface.customWelcome;
+    // Use localized custom welcome message
+    const customWelcome = localize('com_ui_custom_welcome');
+    // Only use custom welcome if it's not the translation key itself (meaning it's translated)
+    if (customWelcome && customWelcome !== 'com_ui_custom_welcome') {
       // Replace {{user.name}} with actual user name if available
       if (user?.name && customWelcome.includes('{{user.name}}')) {
         return customWelcome.replace(/{{user.name}}/g, user.name);
@@ -99,7 +101,7 @@ export default function Landing({ centerFormOnLanding }: { centerFormOnLanding: 
     else {
       return localize('com_ui_good_evening');
     }
-  }, [localize, startupConfig?.interface?.customWelcome, user?.name]);
+  }, [localize, user?.name]);
 
   const handleLineCountChange = useCallback((count: number) => {
     setTextHasMultipleLines(count > 1);
@@ -132,10 +134,11 @@ export default function Landing({ centerFormOnLanding }: { centerFormOnLanding: 
     return margin;
   }, [lineCount, description, textHasMultipleLines, contentHeight]);
 
-  const greetingText =
-    typeof startupConfig?.interface?.customWelcome === 'string'
-      ? getGreeting()
-      : getGreeting() + (user?.name ? ', ' + user.name : '');
+  const customWelcome = localize('com_ui_custom_welcome');
+  const hasCustomWelcome = customWelcome && customWelcome !== 'com_ui_custom_welcome';
+  const greetingText = hasCustomWelcome
+    ? getGreeting()
+    : getGreeting() + (user?.name ? ', ' + user.name : '');
 
   return (
     <div

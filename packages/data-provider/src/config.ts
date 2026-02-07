@@ -571,6 +571,7 @@ const termsOfServiceSchema = z.object({
   externalUrl: z.string().optional(),
   openNewTab: z.boolean().optional(),
   modalAcceptance: z.boolean().optional(),
+  loginAcceptance: z.boolean().optional(),
   modalTitle: z.string().optional(),
   modalContent: z.string().or(z.array(z.string())).optional(),
 });

@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { OGDialog, DialogTemplate, useToastContext } from '@librechat/client';
-import type { TTermsOfService } from 'librechat-data-provider';
 import MarkdownLite from '~/components/Chat/Messages/Content/MarkdownLite';
 import { useAcceptTermsMutation } from '~/data-provider';
 import { useLocalize } from '~/hooks';
@@ -10,16 +9,11 @@ const TermsAndConditionsModal = ({
   onOpenChange,
   onAccept,
   onDecline,
-  title,
-  modalContent,
 }: {
   open: boolean;
   onOpenChange: (isOpen: boolean) => void;
   onAccept: () => void;
   onDecline: () => void;
-  title?: string;
-  contentUrl?: string;
-  modalContent?: TTermsOfService['modalContent'];
 }) => {
   const localize = useLocalize();
   const { showToast } = useToastContext();
@@ -49,22 +43,28 @@ const TermsAndConditionsModal = ({
     onOpenChange(isOpen);
   };
 
+  const title = useMemo(() => {
+    const localizedTitle = localize('com_ui_terms_modal_title');
+    // Only use localized title if it's not the key itself
+    if (localizedTitle && localizedTitle !== 'com_ui_terms_modal_title') {
+      return localizedTitle;
+    }
+    return localize('com_ui_terms_and_conditions');
+  }, [localize]);
+
   const content = useMemo(() => {
-    if (typeof modalContent === 'string') {
-      return modalContent;
+    const localizedContent = localize('com_ui_terms_modal_content');
+    // Only use localized content if it's not the key itself
+    if (localizedContent && localizedContent !== 'com_ui_terms_modal_content') {
+      return localizedContent;
     }
-
-    if (Array.isArray(modalContent)) {
-      return modalContent.join('\n');
-    }
-
     return '';
-  }, [modalContent]);
+  }, [localize]);
 
   return (
     <OGDialog open={open} onOpenChange={handleOpenChange}>
       <DialogTemplate
-        title={title ?? localize('com_ui_terms_and_conditions')}
+        title={title}
         className="w-11/12 max-w-3xl sm:w-3/4 md:w-1/2 lg:w-2/5"
         showCloseButton={false}
         showCancelButton={false}

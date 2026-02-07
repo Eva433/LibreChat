@@ -5,6 +5,7 @@ import { ThemeContext, Spinner, Button, isDark } from '@librechat/client';
 import type { TLoginUser, TStartupConfig } from 'librechat-data-provider';
 import type { TAuthContext } from '~/common';
 import { useResendVerificationEmail, useGetStartupConfig } from '~/data-provider';
+import TermsViewModal from './TermsViewModal';
 import { validateEmail } from '~/utils';
 import { useLocalize } from '~/hooks';
 
@@ -26,11 +27,14 @@ const LoginForm: React.FC<TLoginFormProps> = ({ onSubmit, startupConfig, error, 
   } = useForm<TLoginUser>();
   const [showResendLink, setShowResendLink] = useState<boolean>(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
+  const [showTermsModal, setShowTermsModal] = useState<boolean>(false);
 
   const { data: config } = useGetStartupConfig();
   const useUsernameLogin = config?.ldap?.username;
   const validTheme = isDark(theme) ? 'dark' : 'light';
   const requireCaptcha = Boolean(startupConfig.turnstile?.siteKey);
+  const requireTermsAcceptance = Boolean(startupConfig.interface?.termsOfService?.loginAcceptance);
 
   useEffect(() => {
     if (error && error.includes('422') && !showResendLink) {
@@ -168,12 +172,38 @@ const LoginForm: React.FC<TLoginFormProps> = ({ onSubmit, startupConfig, error, 
           </div>
         )}
 
+        {requireTermsAcceptance && (
+          <div className="my-4 flex items-start gap-2">
+            <input
+              type="checkbox"
+              id="terms-acceptance"
+              checked={termsAccepted}
+              onChange={(e) => setTermsAccepted(e.target.checked)}
+              className="mt-1 h-4 w-4 cursor-pointer rounded border-gray-300 text-green-600 focus:ring-green-500"
+            />
+            <label htmlFor="terms-acceptance" className="text-sm text-text-secondary">
+              {localize('com_auth_agree_to')}{' '}
+              <button
+                type="button"
+                onClick={() => setShowTermsModal(true)}
+                className="text-green-600 underline decoration-transparent transition-all duration-200 hover:text-green-700 hover:decoration-green-700 focus:text-green-700 focus:decoration-green-700 dark:text-green-500 dark:hover:text-green-400 dark:hover:decoration-green-400"
+              >
+                {localize('com_ui_terms_of_service')}
+              </button>
+            </label>
+          </div>
+        )}
+
         <div className="mt-6">
           <Button
             aria-label={localize('com_auth_continue')}
             data-testid="login-button"
             type="submit"
-            disabled={(requireCaptcha && !turnstileToken) || isSubmitting}
+            disabled={
+              (requireCaptcha && !turnstileToken) ||
+              (requireTermsAcceptance && !termsAccepted) ||
+              isSubmitting
+            }
             variant="submit"
             className="h-12 w-full rounded-2xl"
           >
@@ -181,6 +211,13 @@ const LoginForm: React.FC<TLoginFormProps> = ({ onSubmit, startupConfig, error, 
           </Button>
         </div>
       </form>
+
+      {requireTermsAcceptance && (
+        <TermsViewModal
+          open={showTermsModal}
+          onOpenChange={setShowTermsModal}
+        />
+      )}
     </>
   );
 };

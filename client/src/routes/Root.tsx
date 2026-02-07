@@ -98,8 +98,6 @@ export default function Root() {
               onOpenChange={setShowTerms}
               onAccept={handleAcceptTerms}
               onDecline={handleDeclineTerms}
-              title={config.interface.termsOfService.modalTitle}
-              modalContent={config.interface.termsOfService.modalContent}
             />
           )}
         </AssistantsMapContext.Provider>

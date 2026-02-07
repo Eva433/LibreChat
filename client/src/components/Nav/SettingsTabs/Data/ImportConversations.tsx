@@ -15,13 +15,21 @@ function ImportConversations() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  const handleSuccess = useCallback(() => {
-    showToast({
-      message: localize('com_ui_import_conversation_success'),
-      status: NotificationSeverity.SUCCESS,
-    });
-    setIsUploading(false);
-  }, [localize, showToast]);
+  const handleSuccess = useCallback(
+    (data?: { message?: string }) => {
+      const serverMessage = data?.message?.trim();
+      const isProcessing = serverMessage?.toLowerCase().includes('processing');
+
+      showToast({
+        message: isProcessing
+          ? localize('com_ui_import_conversation_processing')
+          : localize('com_ui_import_conversation_success'),
+        status: isProcessing ? NotificationSeverity.INFO : NotificationSeverity.SUCCESS,
+      });
+      setIsUploading(false);
+    },
+    [localize, showToast],
+  );
 
   const handleError = useCallback(
     (error: unknown) => {
