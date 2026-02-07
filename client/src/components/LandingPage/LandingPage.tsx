@@ -430,6 +430,60 @@ interface FeatureCardItem extends AdvantageItem {
 }
 
 /**
+ * Language switcher dropdown props
+ */
+interface LanguageSwitcherProps {
+  currentLang: SupportedLanguage;
+  onLangChange: (lang: SupportedLanguage) => void;
+}
+
+/**
+ * Language label map
+ */
+const languageLabels: Record<SupportedLanguage, string> = {
+  en: 'English',
+  zh: '简体中文',
+  es: 'Español',
+  ja: '日本語',
+  ko: '한국어'
+};
+
+/**
+ * Click-based language switcher (replaces hover dropdown)
+ */
+const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ currentLang, onLangChange }) => {
+  const [open, setOpen] = useState<boolean>(false);
+  const languages = (Object.keys(languageLabels) as SupportedLanguage[]);
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center space-x-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 border border-transparent hover:border-gray-200"
+      >
+        <Globe size={16} className="text-gray-500" />
+        <span className="uppercase text-xs font-bold text-gray-700">{currentLang}</span>
+      </button>
+      {open && (
+        <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-xl p-1 shadow-xl z-50">
+          {languages.map(l => (
+            <button
+              key={l}
+              onClick={() => { onLangChange(l); setOpen(false); }}
+              className={`block w-full text-left px-4 py-2 text-xs font-medium rounded-lg transition-colors ${
+                currentLang === l ? 'text-[#10a37f] bg-gray-50' : 'text-gray-600 hover:bg-gray-50 hover:text-[#10a37f]'
+              }`}
+            >
+              {languageLabels[l]}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/**
  * Main LandingPage component
  */
 const LandingPage: React.FC = () => {
@@ -468,19 +522,7 @@ const LandingPage: React.FC = () => {
           <div className="hidden md:flex items-center space-x-8">
             <a href="#features" className="text-sm font-medium text-gray-500 hover:text-[#10a37f] transition-colors">{t.nav.features}</a>
             <a href="#pricing" className="text-sm font-medium text-gray-500 hover:text-[#10a37f] transition-colors">{t.nav.pricing}</a>
-            <div className="relative group">
-              <button className="flex items-center space-x-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 border border-transparent hover:border-gray-200">
-                <Globe size={16} className="text-gray-500" />
-                <span className="uppercase text-xs font-bold text-gray-700">{lang}</span>
-              </button>
-              <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all p-1 shadow-xl">
-                {(['en', 'zh', 'es', 'ja', 'ko'] as const).map(l => (
-                  <button key={l} onClick={() => setLang(l)} className="block w-full text-left px-4 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 hover:text-[#10a37f] rounded-lg transition-colors capitalize">
-                    {({ en: 'English', zh: '简体中文', es: 'Español', ja: '日本語', ko: '한국어' })[l]}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <LanguageSwitcher currentLang={lang} onLangChange={setLang} />
             <button onClick={() => navigate('/login')} className="px-5 py-2 bg-[#10a37f] text-white text-sm font-bold rounded-lg hover:bg-[#0d8a6a] shadow-md active:scale-95 transition-all">{t.nav.login}</button>
           </div>
         </div>
