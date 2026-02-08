@@ -4,7 +4,9 @@ const { ViolationTypes } = require('librechat-data-provider');
 const { removePorts } = require('~/server/utils');
 const { logViolation } = require('~/cache');
 
-const { LOGIN_WINDOW = 5, LOGIN_MAX = 7, LOGIN_VIOLATION_SCORE: score } = process.env;
+// Default: 5 attempts per 15 minutes (more secure than previous 7/5min)
+// Can be overridden via environment variables
+const { LOGIN_WINDOW = 15, LOGIN_MAX = 5, LOGIN_VIOLATION_SCORE: score } = process.env;
 const windowMs = LOGIN_WINDOW * 60 * 1000;
 const max = LOGIN_MAX;
 const windowInMinutes = windowMs / 60000;

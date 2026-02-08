@@ -1,5 +1,5 @@
 const express = require('express');
-const { requireJwtAuth, checkBan } = require('~/server/middleware');
+const { requireJwtAuth, checkBan, webhookLimiter } = require('~/server/middleware');
 const { getStripeService } = require('~/server/services/StripeService');
 const { logger } = require('~/config');
 const { createTransaction } = require('~/models/Transaction');
@@ -104,7 +104,7 @@ router.post('/create-checkout-session', requireJwtAuth, checkBan, async (req, re
  * Stripe Webhook 端点
  * 处理支付成功事件
  */
-router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+router.post('/webhook', webhookLimiter, express.raw({ type: 'application/json' }), async (req, res) => {
   const signature = req.headers['stripe-signature'];
 
   try {
@@ -124,11 +124,27 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
 
-      // 提取支付信息
-      const paymentInfo = await stripeService.handlePaymentSuccess(session);
-      const { userId, credits, sessionId, amountTotal } = paymentInfo;
+      // 数据库级别幂等性检查 - 检查是否已处理过此 session
+      const existingTransaction = await Transaction.findOne({
+        'metadata.sessionId': session.id,
+        context: 'stripe_recharge',
+      }).lean();
 
-      logger.info(`[Recharge Webhook] Processing payment for user ${userId}: ${credits} credits`);
+      if (existingTransaction) {
+        logger.warn(`[Recharge Webhook] Session ${session.id} already processed, skipping`);
+        return res.json({ received: true, message: 'Already processed' });
+      }
+
+      // 提取并验证支付信息（服务端计算 credits）
+      const paymentInfo = await stripeService.handlePaymentSuccess(session);
+      const { userId, credits, sessionId, amountTotal, tierId } = paymentInfo;
+
+      if (!credits || credits <= 0) {
+        logger.error(`[Recharge Webhook] Invalid credits value: ${credits}`);
+        return res.status(400).json({ received: false, error: 'Invalid credits value' });
+      }
+
+      logger.info(`[Recharge Webhook] Processing payment for user ${userId}: ${credits} credits (tier: ${tierId})`);
 
       // 使用 createTransaction 添加额度并记录交易（会自动更新余额）
       const result = await createTransaction({
@@ -140,7 +156,7 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
           sessionId,
           amountPaid: amountTotal,
           currency: 'usd',
-          tierId: paymentInfo.tierId,
+          tierId: tierId,
         },
       });
 

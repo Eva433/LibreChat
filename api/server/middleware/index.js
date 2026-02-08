@@ -22,6 +22,7 @@ const uaParser = require('./uaParser');
 const checkBan = require('./checkBan');
 const noIndex = require('./noIndex');
 const roles = require('./roles');
+const csrf = require('./csrf');
 
 module.exports = {
   ...abortMiddleware,
@@ -29,6 +30,7 @@ module.exports = {
   ...limiters,
   ...roles,
   ...accessResources,
+  ...csrf,
   noIndex,
   checkBan,
   uaParser,

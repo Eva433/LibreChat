@@ -25,6 +25,8 @@ const createValidateImageRequest = require('./middleware/validateImageRequest');
 const { jwtLogin, ldapLogin, passportLogin } = require('~/strategies');
 const { updateInterfacePermissions } = require('~/models/interface');
 const { checkMigrations } = require('./services/start/migration');
+const { getCorsOptions } = require('./middleware/corsConfig');
+const { setCSRFToken, verifyCSRFToken, getCSRFToken, isCSRFEnabled } = require('./middleware/csrf');
 const initializeMCPs = require('./services/initializeMCPs');
 const configureSocialLogins = require('./socialLogins');
 const { getAppConfig } = require('./services/Config');
@@ -100,8 +102,28 @@ const startServer = async () => {
   });
 
   app.use(mongoSanitize());
-  app.use(cors());
+  app.use(cors(getCorsOptions()));
   app.use(cookieParser());
+
+  // CSRF Protection (disabled by default, enable via ENABLE_CSRF=true)
+  app.use(setCSRFToken);
+  app.use(verifyCSRFToken);
+
+  // CSRF token endpoint - allows frontend to get a fresh token
+  app.get('/api/csrf-token', getCSRFToken);
+
+  // Log security settings on startup
+  if (isCSRFEnabled()) {
+    logger.info('[Security] CSRF protection is ENABLED');
+  } else {
+    logger.info('[Security] CSRF protection is DISABLED (set ENABLE_CSRF=true to enable)');
+  }
+
+  if (process.env.ENABLE_STRICT_CORS === 'true') {
+    logger.info('[Security] Strict CORS is ENABLED');
+  } else {
+    logger.info('[Security] Strict CORS is DISABLED (set ENABLE_STRICT_CORS=true to enable)');
+  }
 
   if (!isEnabled(DISABLE_COMPRESSION)) {
     app.use(compression());
