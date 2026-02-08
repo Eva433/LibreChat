@@ -43,16 +43,15 @@ const limiterOptions = {
     // The actual signature verification happens in the route handler
     return false; // Don't skip for now, let all requests go through the limiter
   },
-  keyGenerator: (req) => {
-    // Use IP address as the key
-    return req.ip;
-  },
+  // Use default keyGenerator which properly handles IPv6 addresses
   store: limiterCache('webhook_limiter'),
   // Don't count successful requests against the limit
   skipSuccessfulRequests: false,
   // Include headers in response
   standardHeaders: true,
   legacyHeaders: false,
+  // Validate option to allow the default IP-based keyGenerator
+  validate: { xForwardedForHeader: false },
 };
 
 const webhookLimiter = rateLimit(limiterOptions);

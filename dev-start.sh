@@ -22,15 +22,18 @@ kill_port() {
     local port=$1
     local service_name=$2
 
-    # 查找占用端口的进程
-    local pid=$(lsof -ti:$port 2>/dev/null)
+    # 查找占用端口的所有进程（可能有多个）
+    local pids=$(lsof -ti:$port 2>/dev/null)
 
-    if [ -n "$pid" ]; then
-        echo -e "${YELLOW}⚠️  发现端口 $port 被占用 (PID: $pid)${NC}"
+    if [ -n "$pids" ]; then
+        echo -e "${YELLOW}⚠️  发现端口 $port 被占用 (PIDs: $pids)${NC}"
         echo -e "${YELLOW}正在终止 $service_name...${NC}"
 
-        # 尝试优雅终止
-        kill $pid 2>/dev/null
+        # 终止所有相关进程
+        for pid in $pids; do
+            # 尝试优雅终止
+            kill $pid 2>/dev/null
+        done
 
         # 等待最多 5 秒
         for i in {1..5}; do
@@ -41,10 +44,13 @@ kill_port() {
             sleep 1
         done
 
-        # 如果优雅终止失败，强制终止
-        if lsof -ti:$port &>/dev/null; then
+        # 如果优雅终止失败，强制终止所有相关进程
+        pids=$(lsof -ti:$port 2>/dev/null)
+        if [ -n "$pids" ]; then
             echo -e "${YELLOW}强制终止 $service_name...${NC}"
-            kill -9 $pid 2>/dev/null
+            for pid in $pids; do
+                kill -9 $pid 2>/dev/null
+            done
             sleep 1
         fi
 

@@ -13,11 +13,25 @@ export function useImportConversations() {
   const { showToast } = useToastContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [fileName, setFileName] = useState('');
+  const [isComplete, setIsComplete] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  const resetProgressState = useCallback(() => {
+    setShowProgressModal(false);
+    setFileName('');
+    setIsComplete(false);
+    setIsError(false);
+  }, []);
 
   const handleSuccess = useCallback(
     (data?: { message?: string }) => {
       const serverMessage = data?.message?.trim();
       const isProcessing = serverMessage?.toLowerCase().includes('processing');
+
+      setIsComplete(true);
+      setIsUploading(false);
 
       showToast({
         message: isProcessing
@@ -25,7 +39,6 @@ export function useImportConversations() {
           : localize('com_ui_import_conversation_success'),
         status: isProcessing ? NotificationSeverity.INFO : NotificationSeverity.SUCCESS,
       });
-      setIsUploading(false);
     },
     [localize, showToast],
   );
@@ -33,6 +46,7 @@ export function useImportConversations() {
   const handleError = useCallback(
     (error: unknown) => {
       logger.error('Import error:', error);
+      setIsError(true);
       setIsUploading(false);
 
       const isUnsupportedType = error?.toString().includes('Unsupported import type');
@@ -67,6 +81,7 @@ export function useImportConversations() {
             status: NotificationSeverity.ERROR,
           });
           setIsUploading(false);
+          resetProgressState();
           return;
         }
 
@@ -76,13 +91,14 @@ export function useImportConversations() {
       } catch (error) {
         logger.error('File processing error:', error);
         setIsUploading(false);
+        setIsError(true);
         showToast({
           message: localize('com_ui_import_conversation_upload_error'),
           status: NotificationSeverity.ERROR,
         });
       }
     },
-    [uploadFile, showToast, localize, queryClient],
+    [uploadFile, showToast, localize, queryClient, resetProgressState],
   );
 
   const handleFileChange = useCallback(
@@ -90,6 +106,10 @@ export function useImportConversations() {
       const file = event.target.files?.[0];
       if (file) {
         setIsUploading(true);
+        setFileName(file.name);
+        setShowProgressModal(true);
+        setIsComplete(false);
+        setIsError(false);
         handleFileUpload(file);
       }
       event.target.value = '';
@@ -106,5 +126,11 @@ export function useImportConversations() {
     isUploading,
     handleFileChange,
     handleImportClick,
+    // Modal state
+    showProgressModal,
+    fileName,
+    isComplete,
+    isError,
+    resetProgressState,
   };
 }

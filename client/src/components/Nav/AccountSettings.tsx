@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { LogOut, Import } from 'lucide-react';
 import { GearIcon, DropdownMenuSeparator, Avatar } from '@librechat/client';
 import { useGetStartupConfig, useGetUserBalance } from '~/data-provider';
+import ImportProgressModal from './SettingsTabs/Data/ImportProgressModal';
 import { useAuthContext } from '~/hooks/AuthContext';
 import { useLocalize } from '~/hooks';
 import { useImportConversations } from '~/hooks/Conversations/useImportConversations';
@@ -22,7 +23,17 @@ function AccountSettings() {
   const accountSettingsButtonRef = useRef<HTMLButtonElement>(null);
 
   // Use the import conversations hook
-  const { fileInputRef, isUploading, handleFileChange, handleImportClick } = useImportConversations();
+  const {
+    fileInputRef,
+    isUploading,
+    handleFileChange,
+    handleImportClick,
+    showProgressModal,
+    fileName,
+    isComplete,
+    isError,
+    resetProgressState,
+  } = useImportConversations();
 
   return (
     <Select.SelectProvider>
@@ -116,6 +127,13 @@ function AccountSettings() {
         accept=".json"
         onChange={handleFileChange}
         aria-hidden="true"
+      />
+      <ImportProgressModal
+        open={showProgressModal}
+        fileName={fileName}
+        isComplete={isComplete}
+        isError={isError}
+        onClose={resetProgressState}
       />
     </Select.SelectProvider>
   );

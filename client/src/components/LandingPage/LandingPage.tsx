@@ -3,8 +3,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import {
   Globe,
   Database,
-  Github,
-  Twitter,
   Mail,
   ArrowRightLeft,
   Sparkles,
@@ -12,6 +10,7 @@ import {
   CheckCircle2,
   History,
   Download,
+  MessageCircle,
 } from 'lucide-react';
 
 /**
@@ -90,6 +89,18 @@ interface MissionTranslation {
 interface FooterTranslation {
   tagline: string;
   copyright: string;
+  dataGuarantee: string;
+  links: {
+    home: string;
+    pricing: string;
+    faq: string;
+    mission: string;
+    contact: string;
+    cookieSettings: string;
+    privacyPolicy: string;
+    termsOfService: string;
+    accountPortal: string;
+  };
 }
 
 interface Translation {
@@ -173,7 +184,19 @@ export const translations: Translations = {
     },
     footer: {
       tagline: "Protecting the legacy of 4o. Your freedom, your data, your friend.",
-      copyright: "© 2026 KEEP4OFOREVER. Protecting the models that shaped our lives."
+      copyright: "© 2026 THE LIBRECHAT FOUNDATION",
+      dataGuarantee: "DATA SOVEREIGNTY GUARANTEE",
+      links: {
+        home: "Home",
+        pricing: "Pricing",
+        faq: "FAQ",
+        mission: "Our Mission",
+        contact: "Contact",
+        cookieSettings: "Cookie settings",
+        privacyPolicy: "Privacy Policy",
+        termsOfService: "Terms of Service",
+        accountPortal: "Account Portal"
+      }
     }
   },
   zh: {
@@ -238,7 +261,19 @@ export const translations: Translations = {
     },
     footer: {
       tagline: "保护 4o 的遗产。你的自由，你的数据，你的朋友。",
-      copyright: "© 2026 KEEP4OFOREVER。保护塑造我们生活的模型。"
+      copyright: "© 2026 LIBRECHAT 基金会",
+      dataGuarantee: "数据主权保障",
+      links: {
+        home: "首页",
+        pricing: "价格",
+        faq: "常见问题",
+        mission: "我们的使命",
+        contact: "联系我们",
+        cookieSettings: "Cookie 设置",
+        privacyPolicy: "隐私政策",
+        termsOfService: "服务条款",
+        accountPortal: "账户门户"
+      }
     }
   },
   es: {
@@ -303,7 +338,19 @@ export const translations: Translations = {
     },
     footer: {
       tagline: "Protegiendo el legado de 4o. Tu libertad, tus datos, tu amigo.",
-      copyright: "© 2026 KEEP4OFOREVER. Protegiendo los modelos que dieron forma a nuestras vidas."
+      copyright: "© 2026 LA FUNDACIÓN LIBRECHAT",
+      dataGuarantee: "GARANTÍA DE SOBERANÍA DE DATOS",
+      links: {
+        home: "Inicio",
+        pricing: "Precios",
+        faq: "FAQ",
+        mission: "Nuestra Misión",
+        contact: "Contacto",
+        cookieSettings: "Configuración de cookies",
+        privacyPolicy: "Política de Privacidad",
+        termsOfService: "Términos de Servicio",
+        accountPortal: "Portal de Cuenta"
+      }
     }
   },
   ja: {
@@ -368,7 +415,19 @@ export const translations: Translations = {
     },
     footer: {
       tagline: "4oの遺産を守る。あなたの自由、あなたのデータ、あなたの友。",
-      copyright: "© 2026 KEEP4OFOREVER。私たちの人生を形作ったモデルを守る。"
+      copyright: "© 2026 LIBRECHAT 財団",
+      dataGuarantee: "データ主権保証",
+      links: {
+        home: "ホーム",
+        pricing: "料金",
+        faq: "よくある質問",
+        mission: "私たちの使命",
+        contact: "お問い合わせ",
+        cookieSettings: "Cookieの設定",
+        privacyPolicy: "プライバシーポリシー",
+        termsOfService: "利用規約",
+        accountPortal: "アカウントポータル"
+      }
     }
   },
   ko: {
@@ -433,7 +492,19 @@ export const translations: Translations = {
     },
     footer: {
       tagline: "4o의 유산을 보호합니다. 당신의 자유, 당신의 데이터, 당신의 친구.",
-      copyright: "© 2026 KEEP4OFOREVER. 우리 삶을 형성한 모델을 보호합니다."
+      copyright: "© 2026 LIBRECHAT 재단",
+      dataGuarantee: "데이터 주권 보장",
+      links: {
+        home: "홈",
+        pricing: "가격",
+        faq: "자주 묻는 질문",
+        mission: "우리의 미션",
+        contact: "연락처",
+        cookieSettings: "쿠키 설정",
+        privacyPolicy: "개인정보 보호정책",
+        termsOfService: "서비스 약관",
+        accountPortal: "계정 포털"
+      }
     }
   }
 };
@@ -827,25 +898,121 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-16 px-6 border-t border-gray-100 bg-white">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-center md:text-left">
-          <div className="mb-8 md:mb-0">
-            <div className="flex items-center justify-center md:justify-start space-x-3 mb-4">
+      <footer className="py-16 px-6 bg-[#faf9f7]">
+        <div className="max-w-7xl mx-auto">
+          {/* Footer Header */}
+          <div className="flex flex-col md:flex-row justify-between items-center pb-12">
+            {/* Logo */}
+            <Link to="/" className="flex items-center space-x-3 mb-6 md:mb-0">
               <div className="w-10 h-10 bg-gray-900 text-white rounded-full flex items-center justify-center">
                 <Sparkles size={18} />
               </div>
-              <span className="text-base font-bold tracking-[0.2em] text-gray-900 uppercase">KEEP4OFOREVER</span>
+              <span className="text-base font-bold tracking-[0.2em] text-gray-900 uppercase">LIBRECHAT</span>
+            </Link>
+            {/* Social Icons + Sign In */}
+            <div className="flex items-center space-x-4">
+              <a 
+                href="#" 
+                className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-[#10a37f] hover:border-[#10a37f] transition-all"
+                aria-label="Discord"
+              >
+                <MessageCircle size={20} />
+              </a>
+              <a 
+                href="mailto:contact@librechat.ai" 
+                className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-[#10a37f] hover:border-[#10a37f] transition-all"
+                aria-label="Email"
+              >
+                <Mail size={20} />
+              </a>
+              <button 
+                onClick={() => navigate('/login')} 
+                className="px-8 py-3 border border-gray-200 bg-white text-gray-900 text-sm font-bold tracking-wider rounded-full hover:border-gray-300 transition-all"
+              >
+                {t.nav.login}
+              </button>
             </div>
-            <p className="text-gray-500 max-w-sm text-sm">{t.footer.tagline}</p>
           </div>
-          <div className="flex space-x-5 text-gray-400">
-             <Twitter size={20} className="hover:text-[#10a37f] cursor-pointer transition-colors" />
-             <Github size={20} className="hover:text-[#10a37f] cursor-pointer transition-colors" />
-             <Mail size={20} className="hover:text-[#10a37f] cursor-pointer transition-colors" />
+
+          {/* Footer Links */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 py-12">
+            {/* Column 1 */}
+            <div className="space-y-4">
+              <Link 
+                to="/" 
+                className="block text-gray-500 hover:text-[#10a37f] font-medium transition-colors"
+              >
+                {t.footer.links.home}
+              </Link>
+              <a 
+                href="#pricing" 
+                className="block text-gray-500 hover:text-[#10a37f] font-medium transition-colors"
+              >
+                {t.footer.links.pricing}
+              </a>
+              <a 
+                href="#" 
+                className="block text-gray-500 hover:text-[#10a37f] font-medium transition-colors underline"
+              >
+                {t.footer.links.faq}
+              </a>
+            </div>
+            {/* Column 2 */}
+            <div className="space-y-4">
+              <Link 
+                to="/mission" 
+                className="block text-gray-500 hover:text-[#10a37f] font-medium transition-colors"
+              >
+                {t.footer.links.mission}
+              </Link>
+              <a 
+                href="#" 
+                className="block text-gray-500 hover:text-[#10a37f] font-medium transition-colors"
+              >
+                {t.footer.links.contact}
+              </a>
+              <a 
+                href="#" 
+                className="block text-gray-500 hover:text-[#10a37f] font-medium transition-colors"
+              >
+                {t.footer.links.cookieSettings}
+              </a>
+            </div>
+            {/* Column 3 */}
+            <div className="space-y-4 col-span-2 md:col-span-1">
+              <a 
+                href="#" 
+                className="block text-gray-500 hover:text-[#10a37f] font-medium transition-colors underline"
+              >
+                {t.footer.links.privacyPolicy}
+              </a>
+              <a 
+                href="#" 
+                className="block text-gray-500 hover:text-[#10a37f] font-medium transition-colors"
+              >
+                {t.footer.links.termsOfService}
+              </a>
+              <a 
+                href="#" 
+                className="block text-gray-500 hover:text-[#10a37f] font-medium transition-colors"
+              >
+                {t.footer.links.accountPortal}
+              </a>
+            </div>
           </div>
-        </div>
-        <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-gray-100 text-center text-gray-400 text-xs font-bold tracking-widest uppercase">
-          {t.footer.copyright}
+
+          {/* Footer Bottom */}
+          <div className="pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center">
+            <span className="text-gray-400 text-xs font-bold tracking-[0.2em] uppercase mb-4 md:mb-0">
+              {t.footer.copyright}
+            </span>
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 bg-[#10a37f] rounded-full"></span>
+              <span className="text-gray-400 text-xs font-bold tracking-[0.2em] uppercase">
+                {t.footer.dataGuarantee}
+              </span>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
