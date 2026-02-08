@@ -19,6 +19,7 @@ import { PaymentSuccessPage } from '~/components/Recharge/PaymentSuccessPage';
 import { PaymentCancelPage } from '~/components/Recharge/PaymentCancelPage';
 import { RechargeHistoryPage } from '~/components/Recharge/RechargeHistoryPage';
 import LandingPage from '~/components/LandingPage/LandingPage';
+import MissionPage from '~/components/LandingPage/MissionPage';
 import { AuthContextProvider, useAuthContext } from '~/hooks/AuthContext';
 import RouteErrorBoundary from './RouteErrorBoundary';
 import StartupLayout from './Layouts/Startup';
@@ -78,6 +79,11 @@ export const router = createBrowserRouter(
           <LandingPageGuard />
         </AuthContextProvider>
       ),
+      errorElement: <RouteErrorBoundary />,
+    },
+    {
+      path: 'mission',
+      element: <MissionPage />,
       errorElement: <RouteErrorBoundary />,
     },
     {

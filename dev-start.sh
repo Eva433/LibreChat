@@ -134,7 +134,7 @@ main() {
     # 4. 构建共享包（如果需要）
     echo ""
     echo -e "${BLUE}🔨 检查共享包...${NC}"
-    if [ ! -d "packages-built" ] || [ ! -d "api-built" ]; then
+    if ! ./scripts/check-shared-packages.sh; then
         echo "构建共享包..."
         npm run build:packages
         if [ $? -eq 0 ]; then
@@ -165,7 +165,7 @@ main() {
 
     # 启动前端（后台）
     echo -e "${BLUE}启动前端 (端口 $FRONTEND_PORT)...${NC}"
-    npm run frontend:dev &
+    PORT=$FRONTEND_PORT BACKEND_PORT=$API_PORT npm run frontend:dev &
     FRONTEND_PID=$!
 
     # 6. 显示启动信息

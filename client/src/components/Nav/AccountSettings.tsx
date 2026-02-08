@@ -1,9 +1,8 @@
 import { useState, memo, useRef } from 'react';
 import * as Select from '@ariakit/react/select';
 import { useNavigate } from 'react-router-dom';
-import { FileText, LogOut, Import } from 'lucide-react';
+import { LogOut, Import } from 'lucide-react';
 import { GearIcon, DropdownMenuSeparator, Avatar } from '@librechat/client';
-import { MyFilesModal } from '~/components/Chat/Input/Files/MyFilesModal';
 import { useGetStartupConfig, useGetUserBalance } from '~/data-provider';
 import { useAuthContext } from '~/hooks/AuthContext';
 import { useLocalize } from '~/hooks';
@@ -20,7 +19,6 @@ function AccountSettings() {
     enabled: !!isAuthenticated && startupConfig?.balance?.enabled,
   });
   const [showSettings, setShowSettings] = useState(false);
-  const [showFiles, setShowFiles] = useState(false);
   const accountSettingsButtonRef = useRef<HTMLButtonElement>(null);
 
   // Use the import conversations hook
@@ -84,14 +82,6 @@ function AccountSettings() {
         <DropdownMenuSeparator />
         <Select.SelectItem
           value=""
-          onClick={() => setShowFiles(true)}
-          className="select-item text-sm"
-        >
-          <FileText className="icon-md" aria-hidden="true" />
-          {localize('com_nav_my_files')}
-        </Select.SelectItem>
-        <Select.SelectItem
-          value=""
           onClick={handleImportClick}
           disabled={isUploading}
           className="select-item text-sm"
@@ -118,13 +108,6 @@ function AccountSettings() {
           {localize('com_nav_log_out')}
         </Select.SelectItem>
       </Select.SelectPopover>
-      {showFiles && (
-        <MyFilesModal
-          open={showFiles}
-          onOpenChange={setShowFiles}
-          triggerRef={accountSettingsButtonRef}
-        />
-      )}
       {showSettings && <Settings open={showSettings} onOpenChange={setShowSettings} />}
       <input
         ref={fileInputRef}
